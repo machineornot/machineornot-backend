@@ -10,6 +10,9 @@ app = FastAPI(title="AI Usage Detector", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 @app.get("/health")
+@app.get("/debug")
+def debug():
+    return {"light_mode": LIGHT_MODE}
 def health():
     return {"ok": True}
 
