@@ -11,14 +11,13 @@ app = FastAPI(title="AI Usage Detector", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 @app.get("/health")
-@app.get("/debug")
-def debug():
-    return {"light_mode": LIGHT_MODE}
 def health():
     return {"ok": True}
 
-from fastapi.responses import JSONResponse  # add this near your other imports
-import traceback  # add this near your other imports
+@app.get("/debug")
+def debug():
+    return {"light_mode": LIGHT_MODE}
+
 
 @app.post("/analyze")
 async def analyze(
@@ -28,9 +27,9 @@ async def analyze(
     try:
         # Decide which text detector to use (LIGHT_MODE or full)
         if LIGHT_MODE:
-            from detectors.text_detector_light import analyze_text_or_url  # lightweight
+            from .detectors.text_detector_light import analyze_text_or_url  # lightweight
         else:
-            from detectors.text_detector import analyze_text_or_url        # heavy
+            from .detectors.text_detector import analyze_text_or_url        # heavy
 
         result = {"id": "job", "overall_confidence": 0.0, "modalities": {}, "explanations": []}
 
@@ -43,11 +42,11 @@ async def analyze(
         if file and getattr(file, "content_type", None):
             ctype = file.content_type or ""
             if ctype.startswith("image/"):
-                from detectors.image_detector import analyze_image
+                from .detectors.image_detector import analyze_image
                 img_res = await analyze_image(file)
                 result["modalities"]["image"] = img_res
             elif ctype.startswith("video/"):
-                from detectors.video_detector import analyze_video
+                from .detectors.video_detector import analyze_video
                 vid_res = await analyze_video(file)
                 result["modalities"]["video"] = vid_res
 
